@@ -1,4 +1,4 @@
-# picogpcr.py
+# Picofold-GPCR
 
 A small molecule-conditioned GPCR geometry generator with only 367k parameters. 
 ~200 lines of code loads data, trains a PyTorch model, and plots the training loss alongside a generated C-alpha backbone.
