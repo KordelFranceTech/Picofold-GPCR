@@ -140,14 +140,22 @@ def train(latent, condition, alpha, embedding, steps, architecture="mlp"):
 
 
 @torch.no_grad()
-def generate(model, condition, alpha, embedding, seed):
-    noisy = torch.randn(1, LATENT, generator=torch.Generator().manual_seed(seed))
+def generate(model, condition, alpha, embedding, seed, eta=0.3):
+    """Seeded stochastic DDIM; eta=0 restores deterministic updates."""
+    if not 0 <= eta <= 1:
+        raise ValueError("eta must be between 0 and 1")
+    generator = torch.Generator().manual_seed(seed)
+    noisy = torch.randn(1, LATENT, generator=generator)
     times = np.linspace(TIMESTEPS - 1, 0, 40, dtype=int)
     for i, time in enumerate(times):
         clean = model(noisy, condition[None], embedding[time:time + 1]).clamp(-2, 2)
         noise = (noisy - alpha[time].sqrt() * clean) / (1 - alpha[time]).sqrt()
         next_alpha = alpha[times[i + 1]] if i + 1 < len(times) else torch.tensor(1.0)
-        noisy = next_alpha.sqrt() * clean + (1 - next_alpha).sqrt() * noise
+        # DDIM variance: fresh noise fades to zero at the final clean estimate.
+        sigma = eta * ((1 - next_alpha) / (1 - alpha[time]) * (1 - alpha[time] / next_alpha)).clamp(min=0).sqrt()
+        noisy = next_alpha.sqrt() * clean + (1 - next_alpha - sigma.square()).clamp(min=0).sqrt() * noise
+        if eta:
+            noisy += sigma * torch.randn(noisy.shape, generator=generator)
     return noisy.numpy().reshape(7, 6)
 
 
@@ -209,11 +217,14 @@ def main():
     parser.add_argument("--model", choices=("mlp", "attention"), default="mlp", help="Denoiser architecture")
     parser.add_argument("--example", type=int, default=0, help="Dataset row supplying molecule features")
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--eta", type=float, default=0.3, help="Fresh sampling noise (0–1; 0 is deterministic)")
     parser.add_argument("--out", type=Path, default=Path("visuals/picogpcr.png"))
     parser.add_argument("--no-show", action="store_true", help="Save the plot without opening a window")
     args = parser.parse_args()
     if args.steps < 1:
         parser.error("--steps must be positive")
+    if not 0 <= args.eta <= 1:
+        parser.error("--eta must be between 0 and 1")
     if args.no_show:
         plt.switch_backend("Agg")
     torch.manual_seed(args.seed)
@@ -224,7 +235,7 @@ def main():
         parser.error("--example must be a valid dataset row")
     alpha, embedding = schedule()
     model, losses = train(latent, condition, alpha, embedding, args.steps, args.model)
-    poses = generate(model, condition[args.example], alpha, embedding, args.seed)
+    poses = generate(model, condition[args.example], alpha, embedding, args.seed, args.eta)
     coordinates = decode(poses, template, rotation_scale)
     visualize(coordinates, losses, args.example, args.out, not args.no_show)
 

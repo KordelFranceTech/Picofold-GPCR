@@ -11,7 +11,8 @@ I built PicoGPCR after being inspired by [Dave Burke's picofold](https://github.
 
 The toy task is to take stored molecule features and generate six position and orientation values for each of seven helices in an existing receptor scaffold.
 Those 42 pose values deform a fixed C-alpha trace into a new visualization. The core learning methods live in the model classes in [`picogpcr.py`](picogpcr.py).
-I wanted to make the sampler, geometry decoder, and viewer small enough to inspect and experiment with for Scentience. This minimal version keeps those steps together in one file.
+I wanted to make the sampler, geometry decoder, and viewer small enough to inspect and experiment with for Scentience. 
+This minimal version enabled me to get my footing enough to flush out an architecture with a small model that could run on edge hardware.
 
 
 ## Protein and GPCR 101
@@ -78,13 +79,15 @@ Hereon, the sampler estimates the noise still present:
 \hat{\epsilon}_t = \frac{z_t-\sqrt{\bar{\alpha}_t}\,\hat{z}_0}{\sqrt{1-\bar{\alpha}_t}}.
 ```
 
-For the next, less noisy timestep $`t'`$, the update is:
+With `--eta 0`, the update for the next, less noisy timestep $`t'`$ is:
 
 ```math
 z_{t'} = \sqrt{\bar{\alpha}_{t'}}\,\hat{z}_0 + \sqrt{1-\bar{\alpha}_{t'}}\,\hat{\epsilon}_t.
 ```
 
-At the final update, the next schedule value is 1, leaving the clean estimate. No fresh noise is added during these deterministic updates. The initial seed supplies the variation between samples.
+At the final update, the next schedule value is 1, leaving the clean estimate. 
+Both scripts default to stochastic DDIM (`--eta 0.3`), adding fresh noise that fades to zero at the final update; `--eta 0` restores the deterministic update above.
+The seed controls both initial and fresh sampling noise. This changes generated poses, not the training-loss calculation.
 
 This is a crucial adaptation I make to keep the model small and iterative enough for educational purposes: the denoising process operates on seven helix poses, while a fixed geometric decoder supplies detailed reference traces.
 
@@ -142,7 +145,8 @@ python picogpcr_viz.py --model attention --no-show --out attention.gif
 
 ## Generation code
 
-Start from seeded Gaussian noise and apply [DDIM](https://arxiv.org/abs/2010.02502) updates. At each step, the model predicts a clean pose, clips it to `[-2, 2]`, and moves to a lower noise level:
+With `--eta 0` in either script, start from seeded Gaussian noise and apply [DDIM](https://arxiv.org/abs/2010.02502) updates. 
+At each step, the model predicts a clean pose, clips it to `[-2, 2]`, and moves to a lower noise level:
 
 ```python
 clean = model(noisy, condition[None], embedding[time:time + 1]).clamp(-2, 2)
@@ -178,7 +182,7 @@ The `molecular dynamics` option learns simulated conformations projected into th
 | Synthetic demo (default) | `data/synthetic/synthetic.npz` | 2,048 artificial poses |
 | Molecular dynamics | `data/md_expanded/dataset.npz` | 44,845 simulated frames |
 
-Each run trains from scratch for **2,000 iterations on the CPU**, then saves and displays a black-background figure with the loss curve and generated backbone. The default output is `picogpcr.png` in the current folder. Example exports: [synthetic](visuals/picogpcr_synthetic.png) and [MD](visuals/picogpcr_md.png).
+Each run trains from scratch for **2,000 iterations on the CPU**, then saves and displays a black-background figure with the loss curve and generated backbone. The default output is `visuals/picogpcr.png`. Example exports: [synthetic](visuals/picogpcr_synthetic.png) and [MD](visuals/picogpcr_md.png).
 
 To use MD data:
 
@@ -188,7 +192,8 @@ python picogpcr.py --data data/md_expanded/dataset.npz --out visuals/picogpcr_md
 
 ### GIF animation
 
-[`picogpcr_viz.py`](picogpcr_viz.py) reuses the model and decoder. To regenerate the animation embedded above:
+[`picogpcr_viz.py`](picogpcr_viz.py) reuses the model and decoder to create an animation of inference.
+To regenerate the animation embedded above:
 
 ```bash
 python picogpcr_viz.py --no-show --out visuals/picogpcr_viz.gif
