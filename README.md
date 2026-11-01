@@ -43,18 +43,14 @@ A "clean helix" means the target before diffusion noise is added, such as an art
 Let $z_0 \in \mathbb{R}^{42}$ be a clean latent vector, $c \in \mathbb{R}^{265}$ the molecule features, and $\epsilon \sim \mathcal{N}(0, I)$ a noise vector. 
 Select a timestep $t$ from the 200-level cosine schedule and form:
 
-$$
-z_t = \sqrt{\bar{\alpha}_t}\,z_0 + \sqrt{1-\bar{\alpha}_t}\,\epsilon.
-$$
+$z_t = \sqrt{\bar{\alpha}_t}\,z_0 + \sqrt{1-\bar{\alpha}_t}\,\epsilon.$
 
 The schedule value $\bar{\alpha}_t$ controls how much clean signal remains. 
 Large timesteps contain mostly noise; small timesteps retain more of the original latent. 
 The network sees $z_t$, the molecule features, and 16 sinusoidal time features $\phi(t)$. Its target is the **clean latent**:
 
-$$
-\hat{z}_0 = f_\theta(z_t, c, \phi(t)), \qquad
-\mathcal{L} = \mathbb{E}\left[\frac{1}{42}\left\|\hat{z}_0-z_0\right\|_2^2\right].
-$$
+$\hat{z}_0 = f_\theta(z_t, c, \phi(t)), \qquad
+\mathcal{L} = \mathbb{E}\left[\frac{1}{42}\left\|\hat{z}_0-z_0\right\|_2^2\right].$
 
 The central training calculation is:
 
@@ -75,18 +71,11 @@ Generation starts from a seeded Gaussian vector and uses 40 [DDIM](https://arxiv
 At each step, the clean prediction is clipped to the supported range of the latent vector. 
 Hereon, the sampler estimates the noise still present:
 
-$$
-\hat{\epsilon}_t =
-\frac{z_t-\sqrt{\bar{\alpha}_t}\,\hat{z}_0}
-{\sqrt{1-\bar{\alpha}_t}}.
-$$
+$\hat{\epsilon}_t = \frac{z_t-\sqrt{\bar{\alpha}_t}\,\hat{z}_0}{\sqrt{1-\bar{\alpha}_t}}.$
 
 For the next, less noisy timestep $t'$, the update is:
 
-$$
-z_{t'} = \sqrt{\bar{\alpha}_{t'}}\,\hat{z}_0
-+ \sqrt{1-\bar{\alpha}_{t'}}\,\hat{\epsilon}_t.
-$$
+$z_{t'} = \sqrt{\bar{\alpha}_{t'}}\,\hat{z}_0 + \sqrt{1-\bar{\alpha}_{t'}}\,\hat{\epsilon}_t.$
 
 At the final update, the next schedule value is 1, leaving the clean estimate. No fresh noise is added during these deterministic updates. The initial seed supplies the variation between samples.
 
