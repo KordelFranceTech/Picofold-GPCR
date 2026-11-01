@@ -28,7 +28,7 @@ The receptor's seven membrane-spanning helices provide a useful starting point f
 The viewer retains one C-alpha, or Cα, coordinate per resolved residue. Its template contains 302 positions from OR51E2, [PDB 8F76, chain A](https://www.rcsb.org/structure/8F76). The source structure was determined with propionate bound. Both run options use this reference trace: option A learns artificial poses, while option B learns poses projected from published molecular-dynamics (MD) frames. The experimental template supplies the displayed scaffold; it does not make either dataset experimental training measurements.
 
 4. **For the model, each helix needs six numbers.**
-Three numbers translate a helix, and three describe an axis-angle rotation. Seven helices therefore give a latent vector with $7 \times (3 + 3) = 42$ entries. *Latent* here means a compact representation that the decoder converts back into coordinates. The model never generates an amino acid sequence.
+Three numbers translate a helix, and three describe an axis-angle rotation. Seven helices therefore give a latent vector with $`7 \times (3 + 3) = 42`$ entries. *Latent* here means a compact representation that the decoder converts back into coordinates. The model never generates an amino acid sequence.
 
 
 ## Folding via conditional diffusion
@@ -40,16 +40,20 @@ Sampling repeatedly applies that denoiser at decreasing noise levels to manifest
 
 A "clean helix" means the target before diffusion noise is added, such as an artificial helix pose from the given synthetic data, or a pose projected from a frame in the MD dataset (see the "Data & how to run" section).
 
-Let $z_0 \in \mathbb{R}^{42}$ be a clean latent vector, $c \in \mathbb{R}^{265}$ the molecule features, and $\epsilon \sim \mathcal{N}(0, I)$ a noise vector. 
-Select a timestep $t$ from the 200-level cosine schedule and form:
+Let $`z_0 \in \mathbb{R}^{42}`$ be a clean latent vector, $`c \in \mathbb{R}^{265}`$ the molecule features, and $`\epsilon \sim \mathcal{N}(0, I)`$ a noise vector. 
+Select a timestep $`t`$ from the 200-level cosine schedule and form:
 
-$z_t = \sqrt{\bar{\alpha}_t}\,z_0 + \sqrt{1-\bar{\alpha}_t}\,\epsilon.$
+```math
+z_t = \sqrt{\bar{\alpha}_t}\,z_0 + \sqrt{1-\bar{\alpha}_t}\,\epsilon.
+```
 
-The schedule value $\bar{\alpha}_t$ controls how much clean signal remains. 
+The schedule value $`\bar{\alpha}_t`$ controls how much clean signal remains. 
 Large timesteps contain mostly noise; small timesteps retain more of the original latent. 
-The network sees $z_t$, the molecule features, and 16 sinusoidal time features $\phi(t)$. Its target is the **clean latent**:
+The network sees $`z_t`$, the molecule features, and 16 sinusoidal time features $`\phi(t)`$. Its target is the **clean latent**:
 
-$\hat{z}_0 = f_\theta(z_t, c, \phi(t)), \qquad \mathcal{L} = \mathbb{E}\left[\frac{1}{42}\left\|\hat{z}_0-z_0\right\|_2^2\right].$
+```math
+\hat{z}_0 = f_\theta(z_t, c, \phi(t)), \qquad \mathcal{L} = \mathbb{E}\left[\frac{1}{42}\left\|\hat{z}_0-z_0\right\|_2^2\right].
+```
 
 The central training calculation is:
 
@@ -70,11 +74,15 @@ Generation starts from a seeded Gaussian vector and uses 40 [DDIM](https://arxiv
 At each step, the clean prediction is clipped to the supported range of the latent vector. 
 Hereon, the sampler estimates the noise still present:
 
-$\hat{\epsilon}_t = \frac{z_t-\sqrt{\bar{\alpha}_t}\,\hat{z}_0}{\sqrt{1-\bar{\alpha}_t}}.$
+```math
+\hat{\epsilon}_t = \frac{z_t-\sqrt{\bar{\alpha}_t}\,\hat{z}_0}{\sqrt{1-\bar{\alpha}_t}}.
+```
 
-For the next, less noisy timestep $t'$, the update is:
+For the next, less noisy timestep $`t'`$, the update is:
 
-$z_{t'} = \sqrt{\bar{\alpha}_{t'}}\,\hat{z}_0 + \sqrt{1-\bar{\alpha _{t'}}\,\hat{\epsilon}_t.$
+```math
+z_{t'} = \sqrt{\bar{\alpha}_{t'}}\,\hat{z}_0 + \sqrt{1-\bar{\alpha}_{t'}}\,\hat{\epsilon}_t.
+```
 
 At the final update, the next schedule value is 1, leaving the clean estimate. No fresh noise is added during these deterministic updates. The initial seed supplies the variation between samples.
 
