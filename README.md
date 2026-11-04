@@ -9,13 +9,6 @@ library_name: pytorch
 A small molecule-conditioned GPCR geometry generator with only 367k parameters. 
 ~200 lines of code loads data, trains a PyTorch model, and plots the training loss alongside a generated C-alpha backbone.
 
-**Related papers**
-
-- France & Daescu (2025). [Diffusion Graph Neural Networks for Robustness in Olfaction Sensors and Datasets](https://arxiv.org/abs/2506.00455v3).
-- Senior et al. (2020). [Improved protein structure prediction using potentials from deep learning](https://doi.org/10.1038/s41586-019-1923-7) (original AlphaFold).
-- Song, Meng & Ermon (2021). [Denoising Diffusion Implicit Models](https://arxiv.org/abs/2010.02502).
-- Butcher et al. (2026). [Atomic functional site scaffolding in biopolymers with RFdiffusion3](https://doi.org/10.1126/science.aeh2982). *Science*.
-
 ![PicoGPCR: Building Scaffold from Noise](visuals/picogpcr_viz.gif)
 
 *200 denoising steps folded on a GPCR scaffold.*
@@ -228,3 +221,10 @@ python picogpcr_viz.py --no-show --out visuals/picogpcr_viz.gif
 
 ## License
 [MIT License](LICENSE)
+
+**Related papers**
+
+- France & Daescu (2025). [Diffusion Graph Neural Networks for Robustness in Olfaction Sensors and Datasets](https://arxiv.org/abs/2506.00455v3).
+- Senior et al. (2020). [Improved protein structure prediction using potentials from deep learning](https://doi.org/10.1038/s41586-019-1923-7) (original AlphaFold).
+- Song, Meng & Ermon (2021). [Denoising Diffusion Implicit Models](https://arxiv.org/abs/2010.02502).
+- Butcher et al. (2026). [Atomic functional site scaffolding in biopolymers with RFdiffusion3](https://doi.org/10.1126/science.aeh2982). *Science*.
