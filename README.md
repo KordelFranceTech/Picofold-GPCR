@@ -7,7 +7,8 @@ A small molecule-conditioned GPCR geometry generator with only 367k parameters.
 
 *200 denoising steps folded on a GPCR scaffold.*
 
-I built PicoGPCR after being inspired by [Dave Burke's picofold](https://github.com/daveyburke/picofold). I have been learning protein folding as a means to better understand the workings of GPCR receptors in olfaction, and wanted to follow the same educational approach: keep the learned model small enough to inspect, explain the mathematics alongside the code, and make the result easy to experiment with. This README follows a similar path through the biology, learning method, implementation, and usage, with the focus shifted to olfactory receptor geometry and visualization.
+I built PicofoldGPCR after being inspired by [Dave Burke's picofold](https://github.com/daveyburke/picofold). I have been learning protein folding as a means to better understand the workings of GPCR receptors in olfaction, and wanted to follow the same educational approach: keep the learned model small enough to inspect, explain the mathematics alongside the code, and make the result easy to experiment with. This README follows a similar path through the biology, learning method, implementation, and usage, with the focus shifted to olfactory receptor geometry and visualization.
+I wanted models that were exportable to the Scentience iOS and Android applications, so this limited the number of ops and layers I could use and drove the requirement for simpler architectures.
 
 The toy task is to take stored molecule features and generate six position and orientation values for each of seven helices in an existing receptor scaffold.
 Those 42 pose values deform a fixed C-alpha trace into a new visualization. The core learning methods live in the model classes in [`picogpcr.py`](picogpcr.py).
@@ -26,10 +27,10 @@ G protein-coupled receptors, or GPCRs, are membrane proteins involved in detecti
 The receptor's seven membrane-spanning helices provide a useful starting point for a constrained model. PicoGPCR keeps each reference helix internally rigid and changes its placement. Connecting loops receive interpolated displacements from that reference geometry. This reduces the number of quantities the network must learn.
 
 3. **A C-alpha trace is a sketch of the backbone.**
-The viewer retains one C-alpha, or Cα, coordinate per resolved residue. Its template contains 302 positions from OR51E2, [PDB 8F76, chain A](https://www.rcsb.org/structure/8F76). The source structure was determined with propionate bound. Both run options use this reference trace: option A learns artificial poses, while option B learns poses projected from published molecular-dynamics (MD) frames. The experimental template supplies the displayed scaffold; it does not make either dataset experimental training measurements.
+The viewer retains one C-alpha, or Cα, coordinate per resolved residue. Its template contains 302 positions from OR51E2, [PDB 8F76, chain A](https://www.rcsb.org/structure/8F76). The source structure was determined with propionate bound. Both run options use this reference trace: option A learns artificial poses, while option B learns poses projected from published molecular-dynamics (MD) frames. The experimental template supplies the displayed scaffold.
 
 4. **For the model, each helix needs six numbers.**
-Three numbers translate a helix, and three describe an axis-angle rotation. Seven helices therefore give a latent vector with $`7 \times (3 + 3) = 42`$ entries. *Latent* here means a compact representation that the decoder converts back into coordinates. The model never generates an amino acid sequence.
+Three numbers are used to translate a helix, and three others describe an axis-angle rotation. Seven helices therefore give a latent vector with $`7 \times (3 + 3) = 42`$ entries. *Latent* here means a compact representation that the decoder converts back into coordinates. The model never generates an amino acid sequence.
 
 
 ## Folding via conditional diffusion
@@ -198,6 +199,19 @@ To regenerate the animation embedded above:
 ```bash
 python picogpcr_viz.py --no-show --out visuals/picogpcr_viz.gif
 ```
+
+### Export trained models
+
+```bash
+python export_model.py
+```
+
+Trains both models on the MD dataset for 2,000 steps with seed 42 and exports EMA weights
+into `model/mlp/` and `model/attention/`. Each is a standalone Hugging Face model folder
+with `model.safetensors`, configuration, scaffold, example input, source, and loading instructions.
+Use `--model mlp` or `--model attention` to export one; `--data`, `--steps`, and `--seed` override training defaults.
+See the [MLP model card](model/mlp/README.md) or [attention model card](model/attention/README.md) to load without retraining.
+Exports stay local; each subfolder can be uploaded as its own model repository.
 
 ## Limitations
 

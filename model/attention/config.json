@@ -1,0 +1,77 @@
+{
+  "model_type": "picogpcr",
+  "architectures": [
+    "HelixAttention"
+  ],
+  "architecture": "attention",
+  "torch_dtype": "float32",
+  "parameter_count": 568838,
+  "latent_size": 42,
+  "condition_size": 265,
+  "time_size": 16,
+  "hidden_size": 128,
+  "depth": 4,
+  "attention_heads": 4,
+  "feature_schema": "rdkit-morgan-r2-chiral-256-desc8-presence-v1",
+  "geometry": {
+    "model_schema": "picogpcr-v2",
+    "template_id": "8F76_A_OR51E2",
+    "translation_scale_angstrom": 2.0,
+    "rotation_scale_radian": 0.5,
+    "latent_limit": 2.0
+  },
+  "diffusion": {
+    "prediction_type": "clean_latent",
+    "schedule": "cosine",
+    "offset": 0.008,
+    "alpha_floor": 1e-05,
+    "timesteps": 200,
+    "sampler": "ddim",
+    "sampling_steps": 40,
+    "eta": 0.3
+  },
+  "training": {
+    "dataset_file": "dataset.npz",
+    "dataset_rows": 44845,
+    "dataset_sha256": "099b3d960a6979a0cad01f8c0d4f3d32e644a89e9521c1231d2f7e2fc73b4014",
+    "steps": 2000,
+    "seed": 42,
+    "batch_size": 64,
+    "optimizer": "AdamW",
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "gradient_clip": 1.0,
+    "condition_dropout": 0.2,
+    "weights": "ema",
+    "ema_decay": 0.99,
+    "last_batch_training_mse": 0.045576680451631546,
+    "evaluation": "training only; no held-out validation or test"
+  },
+  "data_provenance": {
+    "source": "molecular_dynamics",
+    "model_schema": "picogpcr-v2",
+    "translation_scale_angstrom": 2.0,
+    "rotation_scale_radian": 0.5,
+    "latent_limit": 2.0,
+    "feature_schema": "rdkit-morgan-r2-chiral-256-desc8-presence-v1",
+    "template_id": "8F76_A_OR51E2",
+    "template_sha256": "5d5cf6ef19731dd4fe26c2decf5d6d73c2f6df358912d0097df9ae120fc95619",
+    "source_record": "https://zenodo.org/records/23106855",
+    "real_structures": 0,
+    "simulated_frames": 44845,
+    "selection_sha256": "c650ae227fc4073c175009341f99872df19a3fd56adae4807685c9e6eb8f1e5e",
+    "duplicate_trajectory_audit_sha256": "c980e0dc474723d56ccf598b9ed4516c585c410debe26cbf7c5835ef56f73330",
+    "experimental_dataset_sha256": "e0092da4fb19c98600edcf874c1a4b6bfee8adebc826a91f45b8035b2abc05f4",
+    "experimental_split_sha256": "05eba2700080ccaa21d5952ebc3086e971e6fb493657c0ddb3b4dd2d02d76a33",
+    "note": "Correlated simulated frames, not independent experimental structures. Training-only supplement; original experimental partitions remain frozen."
+  },
+  "template_sha256": "5d5cf6ef19731dd4fe26c2decf5d6d73c2f6df358912d0097df9ae120fc95619",
+  "source_sha256": "92358e363f1cdf2c59db6e0e029e65fc1236fd52a8e92daf027c343805e10040",
+  "environment": {
+    "torch": "2.10.0",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "matplotlib": "3.11.2",
+    "safetensors": "0.8.0"
+  }
+}
