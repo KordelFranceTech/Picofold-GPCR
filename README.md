@@ -200,19 +200,6 @@ To regenerate the animation embedded above:
 python picogpcr_viz.py --no-show --out visuals/picogpcr_viz.gif
 ```
 
-### Export trained models
-
-```bash
-python export_model.py
-```
-
-Trains both models on the MD dataset for 2,000 steps with seed 42 and exports EMA weights
-into `model/mlp/` and `model/attention/`. Each is a standalone Hugging Face model folder
-with `model.safetensors`, configuration, scaffold, example input, source, and loading instructions.
-Use `--model mlp` or `--model attention` to export one; `--data`, `--steps`, and `--seed` override training defaults.
-See the [MLP model card](model/mlp/README.md) or [attention model card](model/attention/README.md) to load without retraining.
-Exports stay local; each subfolder can be uploaded as its own model repository.
-
 ## Limitations
 
 - **Training loss only.** All rows are used for training; there is no held-out validation or test score. Synthetic labels are artificial, and MD frames are correlated simulation observations.
