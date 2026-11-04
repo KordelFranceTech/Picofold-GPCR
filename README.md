@@ -7,7 +7,7 @@ library_name: pytorch
 [![arXiv 2506.00455v3](https://img.shields.io/badge/arXiv-2506.00455v3-b31b1b.svg)](https://arxiv.org/abs/2506.00455v3) [![Hugging Face Model](https://img.shields.io/badge/Hugging%20Face-Model-FFD21E.svg?logo=huggingface)](https://huggingface.co/kordelfrance/picofoldGPCR)
 
 A small molecule-conditioned GPCR geometry generator with only 367k parameters. 
-~200 lines of code loads data, trains a PyTorch model, and plots the training loss alongside a generated C-alpha backbone.
+~200 lines of code loads data, trains a PyTorch model, and plots the training loss alongside a generated alpha carbon structure.
 
 ![PicoGPCR: Building Scaffold from Noise](visuals/picogpcr_viz.gif)
 
