@@ -2,7 +2,7 @@
 library_name: pytorch
 ---
 
-# Picofold-GPCR
+# PicoFold-GPCR (OlfaFold)
 
 [![arXiv 2506.00455v3](https://img.shields.io/badge/arXiv-2506.00455v3-b31b1b.svg)](https://arxiv.org/abs/2506.00455v3) [![Hugging Face Model](https://img.shields.io/badge/Hugging%20Face-Model-FFD21E.svg?logo=huggingface)](https://huggingface.co/kordelfrance/picofoldGPCR)
 
@@ -13,7 +13,7 @@ A small molecule-conditioned GPCR geometry generator with only 367k parameters.
 
 *200 denoising steps folded on a GPCR scaffold.*
 
-I built PicofoldGPCR after being inspired by [Dave Burke's picofold](https://github.com/daveyburke/picofold). I have been learning protein folding as a means to better understand the workings of GPCR receptors in olfaction, and wanted to follow the same educational approach: keep the learned model small enough to inspect, explain the mathematics alongside the code, and make the result easy to experiment with. This README follows a similar path through the biology, learning method, implementation, and usage, with the focus shifted to olfactory receptor geometry and visualization.
+I built *PicoFoldGPCR* (the precursor to Scentience's *OlfaFold*) after being inspired by [Dave Burke's picofold](https://github.com/daveyburke/picofold). I have been learning protein folding as a means to better understand the workings of GPCR receptors in olfaction, and wanted to follow the same educational approach: keep the learned model small enough to inspect, explain the mathematics alongside the code, and make the result easy to experiment with. This README follows a similar path through the biology, learning method, implementation, and usage, with the focus shifted to olfactory receptor geometry and visualization.
 I wanted models that were exportable to the Scentience iOS and Android applications, so this limited the number of ops and layers I could use and drove the requirement for simpler architectures.
 
 The toy task is to take stored molecule features and generate six position and orientation values for each of seven helices in an existing receptor scaffold.
